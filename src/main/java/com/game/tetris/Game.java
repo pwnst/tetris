@@ -5,11 +5,9 @@ import com.game.tetris.model.tetromino.Tetromino;
 import com.game.tetris.model.tetromino.Type;
 import com.game.tetris.util.RandomBag;
 import com.game.tetris.util.SoundUtil;
-import javafx.scene.input.KeyCode;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 public class Game {
 
@@ -33,7 +31,7 @@ public class Game {
 
     public void rotate() {
         var rotatedCopy = currentTetromino.getRotatedCopy();
-        if (!collisionWithGrid(rotatedCopy)) {
+        if (!hasCollisionWithGrid(rotatedCopy)) {
             SoundUtil.playRotate();
             currentTetromino = rotatedCopy;
         }
@@ -41,39 +39,40 @@ public class Game {
 
 
     public void move(Movement movement) {
-        if (!checkCollision(movement)) {
+        if (noCollision(movement)) {
             currentTetromino.move(movement);
         }
     }
 
-    public void moveDown(Set<KeyCode> pressedKeys) {
-        if (!checkCollision(Movement.DOWN)) {
+    public boolean moveDownWithCollapse() {
+        if (noCollision(Movement.DOWN)) {
             currentTetromino.move(Movement.DOWN);
+            return false;
         } else {
-            mergeAndCollapse();
-            pressedKeys.remove(KeyCode.DOWN);
+            mergeCollapseSpawnNew();
+            return true;
         }
     }
 
     public void autoMoveDown() {
-        if (!checkCollisionDown()) {
+        if (noCollisionDown()) {
             currentTetromino.moveDown();
         } else {
-            mergeAndCollapse();
+            mergeCollapseSpawnNew();
         }
     }
 
-    public boolean checkCollision(Movement movement) {
+    public boolean noCollision(Movement movement) {
         return switch (movement) {
-            case LEFT -> checkCollisionLeft();
-            case RIGHT -> checkCollisionRight();
-            case DOWN -> checkCollisionDown();
+            case LEFT -> noCollisionLeft();
+            case RIGHT -> noCollisionRight();
+            case DOWN -> noCollisionDown();
         };
     }
 
     public void spawnTetromino() {
         Tetromino tetromino = randomBag.getNext().create(4, 2);
-        if (collisionWithGrid(tetromino)) {
+        if (hasCollisionWithGrid(tetromino)) {
             SoundUtil.playGameOver();
             this.gameOver = true;
         } else {
@@ -81,12 +80,10 @@ public class Game {
         }
     }
 
-    public void mergeAndCollapse() {
-        if (checkCollisionDown()) {
-            merge();
-            collapse();
-            spawnTetromino();
-        }
+    public void mergeCollapseSpawnNew() {
+        merge();
+        collapse();
+        spawnTetromino();
     }
 
     public void merge() {
@@ -122,7 +119,7 @@ public class Game {
         }
     }
 
-    private boolean collisionWithGrid(Tetromino tetromino) {
+    private boolean hasCollisionWithGrid(Tetromino tetromino) {
         for (Block block : tetromino.getBlocks()) {
             int blockX = block.x();
             int blockY = block.y();
@@ -133,31 +130,31 @@ public class Game {
         return false;
     }
 
-    public boolean checkCollisionLeft() {
+    private boolean noCollisionLeft() {
         for (Block block : currentTetromino.getBlocks()) {
             if (block.x() <= 0 || grid[block.y()][block.x() - 1] > 0) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
-    public boolean checkCollisionRight() {
+    private boolean noCollisionRight() {
         for (Block block : currentTetromino.getBlocks()) {
             if (block.x() >= 9 || grid[block.y()][block.x() + 1] > 0) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
-    public boolean checkCollisionDown() {
+    private boolean noCollisionDown() {
         for (Block block : currentTetromino.getBlocks()) {
             if (block.y() >= grid.length - 1 || grid[block.y() + 1][block.x()] > 0) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     public Tetromino getCurrentTetromino() {

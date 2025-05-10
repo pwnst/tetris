@@ -78,7 +78,10 @@ public class GameApp extends Application {
             lastTick = System.currentTimeMillis();
         }
         if (pressedKeys.contains(KeyCode.DOWN)) {
-            game.moveDown(pressedKeys);
+            boolean collapsed = game.moveDownWithCollapse();
+            if (collapsed) {
+                pressedKeys.remove(KeyCode.DOWN);
+            }
         }
         if (pressedKeys.contains(KeyCode.LEFT)) {
             pressedKeys.remove(KeyCode.LEFT);

@@ -5,9 +5,11 @@ import com.game.tetris.model.tetromino.Tetromino;
 import com.game.tetris.model.tetromino.Type;
 import com.game.tetris.util.RandomBag;
 import com.game.tetris.util.SoundUtil;
+import javafx.scene.input.KeyCode;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class Game {
 
@@ -37,11 +39,19 @@ public class Game {
         }
     }
 
+
     public void move(Movement movement) {
         if (!checkCollision(movement)) {
             currentTetromino.move(movement);
-        } else if (movement == Movement.DOWN) {
+        }
+    }
+
+    public void moveDown(Set<KeyCode> pressedKeys) {
+        if (!checkCollision(Movement.DOWN)) {
+            currentTetromino.move(Movement.DOWN);
+        } else {
             mergeAndCollapse();
+            pressedKeys.remove(KeyCode.DOWN);
         }
     }
 

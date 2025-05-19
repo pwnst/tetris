@@ -74,7 +74,7 @@ public class GameApp extends Application {
             return;
         }
         if (System.currentTimeMillis() - lastTick > game.getSpeed()) {
-            game.autoMoveDown();
+            game.moveDownWithCollapse();
             lastTick = System.currentTimeMillis();
         }
         if (pressedKeys.contains(KeyCode.DOWN)) {

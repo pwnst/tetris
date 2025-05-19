@@ -54,14 +54,6 @@ public class Game {
         }
     }
 
-    public void autoMoveDown() {
-        if (noCollisionDown()) {
-            currentTetromino.moveDown();
-        } else {
-            mergeCollapseSpawnNew();
-        }
-    }
-
     public boolean noCollision(Movement movement) {
         return switch (movement) {
             case LEFT -> noCollisionLeft();
